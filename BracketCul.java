@@ -1,6 +1,5 @@
 package calculate;
 
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -11,22 +10,23 @@ import java.util.List;
 
 public class BracketCul {
 
-
 	public static void main(String[] args) throws IOException {
 		BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
-		System.out.print("\n計算式を入力してください: ");
-		String expression = reader.readLine();
+		while (true) {
+			System.out.print("\n計算式を入力してください: ");
+			String expression = reader.readLine();
 
-		try {
-			int result = calculate(expression);
-			System.out.println("計算結果: " + result);
-		} catch (SyntaxException e) {
-			System.err.println("構文エラー: " + e.getMessage());
-		} catch (ArithmeticLogicException e) {
-			System.err.println("計算エラー: " + e.getMessage());
-		} catch (Exception e) {
-			System.err.println("予期せぬエラーが発生しました。");
-			e.printStackTrace();
+			try {
+				int result = calculate(expression);
+				System.out.println("計算結果: " + result);
+			} catch (SyntaxException e) {
+				System.err.println("構文エラー: " + e.getMessage());
+			} catch (ArithmeticLogicException e) {
+				System.err.println("計算エラー: " + e.getMessage());
+			} catch (Exception e) {
+				System.err.println("予期せぬエラーが発生しました。");
+				e.printStackTrace();
+			}
 		}
 	}
 

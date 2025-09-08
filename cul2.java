@@ -1,171 +1,110 @@
-package calculate;
+// package calculate;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Deque;
-import java.util.List;
+// import java.io.BufferedReader;
+// import java.io.IOException;
+// import java.io.InputStreamReader;
+// import java.util.ArrayList;
+// import java.util.List;
 
-public class cul2 {
-    public static void main(String[] args) throws IOException {
-        BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
-        System.out.print("\n計算式を入力してください: ");
-        String expression = reader.readLine();
+// public class cul2 {
+// /**
+// * 実行メソッド
+// *
+// * @param args
+// * @throws IOException
+// */
+// public static void main(String[] args) throws IOException {
 
-        try {
-            int result = calculate(expression);
-            System.out.println("計算結果: " + result);
-        } catch (Exception e) {
-            System.err.println("エラー: 式の形式が正しくないか、計算できませんでした。");
-        }
-    }
+// // 数式を入力
+// BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+// System.out.print("\n計算式を入力してください");
+// String expression = reader.readLine();
 
-    /**
-     * 計算のメイン処理
-     */
-    private static int calculate(String expression) {
-        // [正規表現を使わない空白除去]
-        StringBuilder expressionWithoutSpaces = new StringBuilder();
-        for (int i = 0; i < expression.length(); i++) {
-            char c = expression.charAt(i);
-            if (!Character.isWhitespace(c)) {
-                expressionWithoutSpaces.append(c);
-            }
-        }
+// // 数式の計算
+// int result = calculate(expression);
+// System.out.println("計算結果: " + result);
 
-        // 1. 式をトークンに分解する
-        List<String> tokens = store(expressionWithoutSpaces.toString());
+// }
 
-        // 2. 逆ポーランド記法(RPN)に変換する
-        List<String> rpn = convertToRPN(tokens);
+// /**
+// * 計算のメイン処理
+// *
+// * @param expression
+// * @return
+// */
+// private static int calculate(String expression) {
 
-        // 3. RPNを計算する
-        return calculateRPN(rpn);
-    }
+// // 数字と演算子に分けてリ格納するリスト
+// StringBuilder expressionWithoutSpaces = new StringBuilder();
+// for (int i = 0; i < expression.length(); i++) {
+// char c = expression.charAt(i);
+// // Character.isWhitespace() は、文字がスペース、タブ、改行などの空白文字かどうかを判定する
+// if (!Character.isWhitespace(c)) {
+// expressionWithoutSpaces.append(c);
+// }
+// }
+// return 1;
+// }
 
-    /**
-     * [ステップ1] 数字と演算子に分ける（負の数に対応）
-     */
-    private static List<String> store(String expression) {
-        List<String> tokens = new ArrayList<>();
-        StringBuilder currentNumber = new StringBuilder();
+// /*
+// * 数字と演算子に分ける
+// */
+// private static List<String> store(String expression) {
 
-        for (int i = 0; i < expression.length(); i++) {
-            char c = expression.charAt(i);
+// List<String> tokens = new ArrayList<>();
+// StringBuilder currentNumber = new StringBuilder();
 
-            if (isNumber(c)) {
-                currentNumber.append(c);
-            } else {
-                if (currentNumber.length() > 0) {
-                    tokens.add(currentNumber.toString());
-                    currentNumber.setLength(0);
-                }
-                if (c == '-') {
-                    if (tokens.isEmpty() || isOperator(tokens.get(tokens.size() - 1))) {
-                        currentNumber.append('-');
-                    } else {
-                        tokens.add(String.valueOf(c));
-                    }
-                } else {
-                    tokens.add(String.valueOf(c));
-                }
-            }
-        }
-        if (currentNumber.length() > 0) {
-            tokens.add(currentNumber.toString());
-        }
-        return tokens;
-    }
+// // 数式か演算子の判定
+// for (int i = 0; i < expression.length(); i++) {
+// char word = expression.charAt(i);
+// // 数字と記号に分ける（二桁以上を考慮する）
+// if (isNumber(word)) {
+// currentNumber.append(word);
+// } else {
+// // 文字が数字でない場合（記号の場合）
+// if (currentNumber.length() > 0) {
+// tokens.add(currentNumber.toString());
+// currentNumber = new StringBuilder();
+// }
+// tokens.add(String.valueOf(word));
+// }
+// }
 
-    /**
-     * ★★★ ここがRPN関連のメソッドです (1/2) ★★★ [ステップ2] トークンリストを逆ポーランド記法(RPN)に変換する
-     */
-    private static List<String> convertToRPN(List<String> tokens) {
-        List<String> outputQueue = new ArrayList<>();
-        Deque<String> operatorStack = new ArrayDeque<>();
+// // 最後に残った数字を追加する
+// if (currentNumber.length() > 0) {
+// tokens.add(currentNumber.toString());
+// }
+// return tokens;
+// }
 
-        for (String token : tokens) {
-            if (isNumber(token)) {
-                outputQueue.add(token);
-            } else if (isOperator(token)) {
-                while (!operatorStack.isEmpty()
-                        && priority(operatorStack.peek()) >= priority(token)) {
-                    outputQueue.add(operatorStack.pop());
-                }
-                operatorStack.push(token);
-            }
-        }
-        while (!operatorStack.isEmpty()) {
-            outputQueue.add(operatorStack.pop());
-        }
-        return outputQueue;
-    }
+// /**
+// * 演算子の優先順位を取得する
+// */
+// private static int priority(String operator) {
+// switch (operator) {
+// case "+":
+// case "-":
+// return 1;
+// case "*":
+// case "/":
+// return 2;
+// default:
+// return 0;
+// }
+// }
 
-    /**
-     * ★★★ ここがRPN関連のメソッドです (2/2) ★★★ [ステップ3] 逆ポーランド記法のリストを計算する
-     */
-    private static int calculateRPN(List<String> rpn) {
-        Deque<Integer> calculationStack = new ArrayDeque<>();
+// /**
+// * 数字か記号かの判定
+// *
+// * @param str
+// * @return
+// */
+// private static boolean isNumber(Character number) {
+// if (Character.isDigit(number)) {
+// return true;
+// } else {
+// return false;
+// }
+// }
 
-        for (String token : rpn) {
-            if (isNumber(token)) {
-                calculationStack.push(Integer.parseInt(token));
-            } else if (isOperator(token)) {
-                int val2 = calculationStack.pop();
-                int val1 = calculationStack.pop();
-                int result = 0;
-
-                switch (token) {
-                    case "+":
-                        result = val1 + val2;
-                        break;
-                    case "-":
-                        result = val1 - val2;
-                        break;
-                    case "*":
-                        result = val1 * val2;
-                        break;
-                    case "/":
-                        result = val1 / val2;
-                        break;
-                }
-                calculationStack.push(result);
-            }
-        }
-        return calculationStack.pop();
-    }
-
-    // --- 以下はヘルパーメソッド群 ---
-
-    private static int priority(String operator) {
-        switch (operator) {
-            case "+":
-            case "-":
-                return 1;
-            case "*":
-            case "/":
-                return 2;
-            default:
-                return 0;
-        }
-    }
-
-    private static boolean isNumber(Character number) {
-        return Character.isDigit(number);
-    }
-
-    private static boolean isNumber(String str) {
-        try {
-            Integer.parseInt(str);
-            return true;
-        } catch (NumberFormatException e) {
-            return false;
-        }
-    }
-
-    private static boolean isOperator(String str) {
-        return str.equals("+") || str.equals("-") || str.equals("*") || str.equals("/");
-    }
-}
+// }
